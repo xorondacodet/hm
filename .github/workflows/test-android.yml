@@ -123,7 +123,7 @@ jobs:
       - name: Setup Android NDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'ndk;${{ env.NDK_VERSION }};build-tools;34.0.0'
+          packages: 'ndk;${{ env.NDK_VERSION }} build-tools;34.0.0'
       
       - name: Set NDK environment
         run: |
@@ -143,7 +143,7 @@ jobs:
       
       - name: Build Test Library
         run: |
-          cd src/src/tests/android
+          cd src/tests/android
           
           cmake -B build-tests -S . \
             -G Ninja \
@@ -159,7 +159,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: xoron-android-test-lib
-          path: src/src/tests/android/build-tests/libxoron_test_integration.so
+          path: src/tests/android/build-tests/libxoron_test_integration.so
           retention-days: 1
 
   run-android-tests:
@@ -182,11 +182,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: xoron-android-test-lib
-          path: src/src/tests/android/build-tests/
+          path: src/tests/android/build-tests/
       
       - name: Build Test APK
         run: |
-          cd src/src/tests/android
+          cd src/tests/android
           chmod +x gradlew
           ./gradlew assembleDebug
       
@@ -207,8 +207,8 @@ jobs:
       
       - name: Install and Run Tests
         run: |
-          adb install -r src/src/tests/android/build/outputs/apk/debug/android-tests-debug.apk
-          adb push src/src/tests/android/build-tests/libxoron_test_integration.so /data/local/tmp/
+          adb install -r src/tests/android/build/outputs/apk/debug/android-tests-debug.apk
+          adb push src/tests/android/build-tests/libxoron_test_integration.so /data/local/tmp/
           adb shell am start -n com.xoron.tests/.XoronTestRunner
           sleep 15
           adb logcat -d | grep "XoronTest" | tee test_results.txt
